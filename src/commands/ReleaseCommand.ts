@@ -12,7 +12,12 @@ export class ReleaseCommand implements CommandBase {
         .positional('ver', {
           describe: 'Version of the resulting release',
           type: 'string'
-        });
+        })
+      .option('nobuild', {
+        type: 'boolean',
+        describe: 'Do not run the script/native builds\n(assume they are already built)',
+        default: false
+      });
   }
 
   handler(argv: Arguments) {

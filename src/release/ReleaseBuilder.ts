@@ -1,15 +1,18 @@
 import {Arguments} from "yargs";
-import chalk from "chalk";
 import * as child_process from "child_process";
 import * as path from "path";
 import * as fs from 'fs-extra';
 import {logger} from "../Logger";
+import {ReleaseInfo} from "../utils/ReleaseInfo";
+import {decryptFile, encryptFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
 
 export class ReleaseBuilder {
   constructor(private argv: Arguments) {
   }
 
-  execute() {
+  async execute(): Promise<void> {
+    let releaseInfo: Partial<ReleaseInfo> = {};
+
     logger.info(`Producing a a new release: version ${this.argv.ver}`);
 
     const scriptPath = path.resolve(process.cwd(), '../prime-practice-script');
@@ -26,13 +29,127 @@ export class ReleaseBuilder {
       process.exit(1);
     }
 
-    const scriptRev = this.getGitRevision(scriptPath);
-    logger.v('Script revision: ' + scriptRev);
+    const isoPath = path.resolve(process.cwd(), './GM8E01.iso');
+    if (!fs.existsSync(isoPath)) {
+      logger.error('Must provide GM8E01.iso in CWD');
+      process.exit(1);
+    }
 
-    const nativeRev = this.getGitRevision(nativePath);
-    logger.v('Native revision: ' + nativeRev);
+    const buildDir = path.resolve(process.cwd(), `./release/${this.argv.ver}/`);
+    const tmpDir = path.resolve(buildDir, './tmp');
+    const releaseDir = path.resolve(buildDir, `./prime-practice-${this.argv.ver}`);
+    logger.info('Output directory: ' + buildDir);
+    logger.v('Temp directory: ' + tmpDir);
+    logger.v('Release directory: ' + releaseDir);
+    fs.removeSync(buildDir);
+    fs.mkdirpSync(buildDir);
+    fs.mkdirpSync(tmpDir);
+    fs.mkdirpSync(releaseDir);
 
+    // Get repo revisions
+    {
+      const scriptRev = this.getGitRevision(scriptPath);
+      logger.v('Script revision: ' + scriptRev);
 
+      const nativeRev = this.getGitRevision(nativePath);
+      logger.v('Native revision: ' + nativeRev);
+
+      const patcherRev = this.getGitRevision(__dirname);
+      logger.v('Patcher revision: ' + patcherRev);
+
+      releaseInfo.revisions = {
+        script: scriptRev,
+        native: nativeRev,
+        patcher: patcherRev
+      };
+    }
+
+    // Generate keys
+    {
+      releaseInfo.keys = {
+        defaultDol: randomHex(32),
+        defaultModDol: randomHex(32)
+      };
+      logger.v('default.dol encryption key: ' + releaseInfo.keys.defaultDol);
+      logger.v('default_mod.dol encryption key: ' + releaseInfo.keys.defaultModDol);
+    }
+
+    if (!this.argv.nobuild) {
+      logger.info('Running script build');
+      child_process.execFileSync(path.resolve(scriptPath, "./compile_prod.sh"), {
+        stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
+        cwd: scriptPath
+      });
+
+      logger.info('Running native build');
+      child_process.execFileSync(path.resolve(nativePath, "./compile.sh"), {
+        stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
+        cwd: nativePath,
+        env: {
+          'NOWATCH': 'true'
+        }
+      });
+    }
+
+    logger.v('Copying mod.js');
+    fs.copyFileSync(
+      path.resolve(scriptPath, './dist/mod.js'),
+      path.resolve(tmpDir, './mod.js')
+    );
+
+    logger.v('Copying Mod.rel');
+    fs.copyFileSync(
+      path.resolve(nativePath, './build/Mod.rel'),
+      path.resolve(tmpDir, './Mod.rel')
+    );
+
+    logger.v('Copying default.dol');
+    fs.copyFileSync(
+      path.resolve(nativePath, './default.dol'),
+      path.resolve(tmpDir, './default.dol')
+    );
+
+    logger.v('Copying default_mod.dol');
+    fs.copyFileSync(
+      path.resolve(nativePath, './default_mod.dol'),
+      path.resolve(tmpDir, './default_mod.dol')
+    );
+
+    logger.v('Padding default.dol to length');
+    padToLength(
+      path.resolve(tmpDir, './default.dol'),
+      fs.statSync(path.resolve(tmpDir, './default_mod.dol')).size
+    );
+
+    logger.v('Encrypting default.dol');
+    await encryptFile(path.resolve(tmpDir, './default.dol'), releaseInfo.keys.defaultDol);
+
+    logger.v('Encrypting default.mod.dol');
+    await encryptFile(path.resolve(tmpDir, './default_mod.dol'), releaseInfo.keys.defaultModDol);
+
+    logger.v('Xoring encrypted default.dol and encrypted default_mod.dol');
+    xorFiles(
+      path.resolve(tmpDir, './default.dol.aes256'),
+      path.resolve(tmpDir, './default_mod.dol.aes256')
+    );
+
+    logger.v('Copying xor file');
+    fs.copyFileSync(
+      path.resolve(tmpDir, './default.dol.aes256.xor.default_mod.dol.aes256'),
+      path.resolve(releaseDir, './default.dol.aes256.xor.default_mod.dol.aes256')
+    );
+
+    logger.v('Copying mod.js');
+    fs.copyFileSync(
+      path.resolve(tmpDir, './mod.js'),
+      path.resolve(releaseDir, './mod.js')
+    );
+
+    logger.v('Copying Mod.rel');
+    fs.copyFileSync(
+      path.resolve(tmpDir, './Mod.rel'),
+      path.resolve(releaseDir, './Mod.rel')
+    );
   }
 
   getGitRevision(dir: string): string {
@@ -42,3 +159,4 @@ export class ReleaseBuilder {
     }).trim();
   }
 }
+
