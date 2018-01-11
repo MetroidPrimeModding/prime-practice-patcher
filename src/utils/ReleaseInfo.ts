@@ -15,5 +15,6 @@ export interface ReleaseInfo {
   hashes: {
     defaultDol: string;
     defaultModDol: string;
+    GM8E01: string;
   }
 }

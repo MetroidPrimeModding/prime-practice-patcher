@@ -1,6 +1,7 @@
 import {Arguments, Argv} from "yargs";
 import {CommandBase} from "./CommandBase";
 import {ReleaseBuilder} from "../release/ReleaseBuilder";
+import {logger} from "../Logger";
 
 
 export class ReleaseCommand implements CommandBase {
@@ -22,6 +23,11 @@ export class ReleaseCommand implements CommandBase {
 
   handler(argv: Arguments) {
     const releaseBuilder = new ReleaseBuilder(argv);
-    releaseBuilder.execute();
+    releaseBuilder.execute().then(() => {
+      logger.info('Release created!');
+    }).catch((error) => {
+      logger.error('Error producing release: ' + error);
+      throw error;
+    });
   }
 }

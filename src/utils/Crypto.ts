@@ -1,6 +1,7 @@
 import * as crypto from "crypto";
 import * as fs from 'fs-extra';
 import * as path from "path";
+import WritableStream = NodeJS.WritableStream;
 
 export function randomHex(len: number): string {
   let buff = Buffer.alloc(len / 2);
@@ -108,4 +109,18 @@ export function padToLength(file: string, len: number) {
   const fd = fs.openSync(file, 'a');
   fs.writeSync(fd, buff, 0, padLen, startSize);
   fs.closeSync(fd);
+}
+
+export function awaitStream(stream: fs.ReadStream | fs.WriteStream | ReadableStream | WritableStream): Promise<void> {
+  return new Promise((resolve, reject) => {
+    stream.on('finish', () => {
+      resolve();
+    });
+    stream.on('close', () => {
+      resolve();
+    });
+    stream.on('error', (error) => {
+      reject(error);
+    })
+  });
 }

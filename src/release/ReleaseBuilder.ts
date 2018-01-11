@@ -4,7 +4,9 @@ import * as path from "path";
 import * as fs from 'fs-extra';
 import {logger} from "../Logger";
 import {ReleaseInfo} from "../utils/ReleaseInfo";
-import {decryptFile, encryptFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
+import {awaitStream, decryptFile, encryptFile, hashFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
+import * as unzip from 'unzip';
+import archiver = require("archiver");
 
 export class ReleaseBuilder {
   constructor(private argv: Arguments) {
@@ -12,8 +14,9 @@ export class ReleaseBuilder {
 
   async execute(): Promise<void> {
     let releaseInfo: Partial<ReleaseInfo> = {};
+    releaseInfo.version = this.argv.ver;
 
-    logger.info(`Producing a a new release: version ${this.argv.ver}`);
+    logger.info(`Producing a a new release: version ${releaseInfo.version}`);
 
     const scriptPath = path.resolve(process.cwd(), '../prime-practice-script');
     logger.v('Script directory: ' + scriptPath);
@@ -35,16 +38,19 @@ export class ReleaseBuilder {
       process.exit(1);
     }
 
-    const buildDir = path.resolve(process.cwd(), `./release/${this.argv.ver}/`);
+    const buildDir = path.resolve(process.cwd(), `./release/${this.argv.ver}`);
     const tmpDir = path.resolve(buildDir, './tmp');
     const releaseDir = path.resolve(buildDir, `./prime-practice-${this.argv.ver}`);
+    const releaseResDir = path.resolve(releaseDir, './res');
     logger.info('Output directory: ' + buildDir);
     logger.v('Temp directory: ' + tmpDir);
     logger.v('Release directory: ' + releaseDir);
+    logger.v('Release res dir: ' + releaseResDir);
     fs.removeSync(buildDir);
     fs.mkdirpSync(buildDir);
     fs.mkdirpSync(tmpDir);
     fs.mkdirpSync(releaseDir);
+    fs.mkdirpSync(releaseResDir);
 
     // Get repo revisions
     {
@@ -136,19 +142,117 @@ export class ReleaseBuilder {
     logger.v('Copying xor file');
     fs.copyFileSync(
       path.resolve(tmpDir, './default.dol.aes256.xor.default_mod.dol.aes256'),
-      path.resolve(releaseDir, './default.dol.aes256.xor.default_mod.dol.aes256')
+      path.resolve(releaseResDir, './default.dol.aes256.xor.default_mod.dol.aes256')
     );
 
     logger.v('Copying mod.js');
     fs.copyFileSync(
       path.resolve(tmpDir, './mod.js'),
-      path.resolve(releaseDir, './mod.js')
+      path.resolve(releaseResDir, './mod.js')
     );
 
     logger.v('Copying Mod.rel');
     fs.copyFileSync(
       path.resolve(tmpDir, './Mod.rel'),
-      path.resolve(releaseDir, './Mod.rel')
+      path.resolve(releaseResDir, './Mod.rel')
+    );
+
+    logger.v('Copying opening_practice.bnr');
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../res/opening_practice.bnr'),
+      path.resolve(releaseResDir, './opening_practice.bnr')
+    );
+
+    logger.v('Copying patcher');
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../res/patcher-0.1.1.jar'),
+      path.resolve(releaseResDir, './patcher-0.1.1.jar')
+    );
+
+    {
+      logger.v('Calculating hashes');
+      const defaultDolHash = await hashFile(path.resolve(tmpDir, './default.dol'));
+      const defaultModDolHash = await hashFile(path.resolve(tmpDir, './default_mod.dol'));
+      // const GM8E01isoHash = await hashFile(path.resolve(process.cwd(), './GM8E01.iso'));
+      // This won't change so
+      const GM8E01isoHash = 'c49a86d7b61abdaa3fdd6966bed30a72fd28f18a0aa48c02f1d5269ab80ef68c';
+      releaseInfo.hashes = {
+        defaultDol: defaultDolHash,
+        defaultModDol: defaultModDolHash,
+        GM8E01: GM8E01isoHash
+      }
+    }
+
+    logger.v('Saving mod info');
+    fs.writeFileSync(
+      path.resolve(releaseResDir, './mod.json'),
+      JSON.stringify(releaseInfo, null, 2)
+    );
+
+    logger.v('Copying self in');
+    fs.copySync(
+      path.resolve(__dirname, '../../src/'),
+      path.resolve(releaseDir, './src')
+    );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../index.js'),
+      path.resolve(releaseDir, './index.js')
+    );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../package.json'),
+      path.resolve(releaseDir, './package.json')
+    );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../package-lock.json'),
+      path.resolve(releaseDir, './package-lock.json')
+    );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../tsconfig.json'),
+      path.resolve(releaseDir, './tsconfig.json')
+    );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../patch.sh'),
+      path.resolve(releaseDir, './patch.sh')
+    );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../patch.bat'),
+      path.resolve(releaseDir, './patch.bat')
+    );
+
+    logger.v('Running npm install');
+    child_process.execSync('npm install', {
+      stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
+      cwd: releaseDir
+    });
+
+    logger.v('Extracting windows version of node (ha, silly windows users)');
+    child_process.execSync([
+        'unzip',
+        path.resolve(__dirname, '../../res/node-v9.4.0-win-x64.zip'),
+        '-d',
+        releaseDir
+      ].join(' ')
+    );
+
+    logger.v('Extracting windows version of java (ha, silly windows users)');
+    child_process.execSync([
+        'tar -xf',
+        path.resolve(__dirname, '../../res/jre-8u152-windows-x64.tar.gz'),
+        '-C',
+        releaseDir
+      ].join(' ')
+    );
+
+    logger.v('Creating release zip');
+    child_process.execSync([
+        'zip',
+        '-r',
+        path.resolve(buildDir, `prime-practice-${this.argv.ver}.zip`),
+        path.relative(buildDir, releaseDir)
+      ].join(' '),
+      {
+        cwd: buildDir
+      }
     );
   }
 

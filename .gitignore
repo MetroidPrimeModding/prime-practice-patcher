@@ -4,3 +4,6 @@ dist/
 /release
 *.iso
 .DS_Store
+res/*.zip
+res/*.jar
+res/*.tar.gz
