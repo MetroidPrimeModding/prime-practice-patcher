@@ -43,11 +43,13 @@ export class Patcher {
         java,
         '-jar',
         path.resolve(process.cwd(), './patcher-0.1.1.jar'),
-        'extract -fq -o ',
+        'extract',
+        '-fq',
+        '-o',
         extractDir,
         '-i',
         iso
-      ].join(' '),
+      ].map(v => `"${v}"`).join(' '),
       {
         stdio: 'inherit',
       }
@@ -120,11 +122,13 @@ export class Patcher {
         java,
         '-jar',
         path.resolve(process.cwd(), './patcher-0.1.1.jar'),
-        'repack -fq -o',
+        'repack',
+        '-fq',
+        '-o',
         outputFile,
         '-i',
         extractDir
-      ].join(' '),
+      ].map(v => `"${v}"`).join(' '),
       {
         stdio: 'inherit',
       }

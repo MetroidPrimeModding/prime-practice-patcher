@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es2015",
     "module": "commonjs",
-    "sourceMap": true,
 
     "strict": true,
     "moduleResolution": "node",
@@ -10,6 +9,10 @@
     "inlineSources": true,
 
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
+    "emitDecoratorMetadata": true,
+    "outDir": "build"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }

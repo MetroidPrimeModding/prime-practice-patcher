@@ -58,7 +58,7 @@ export class ReleaseBuilder {
       const nativeRev = this.getGitRevision(nativePath);
       logger.v('Native revision: ' + nativeRev);
 
-      const patcherRev = this.getGitRevision(__dirname);
+      const patcherRev = this.getGitRevision(process.cwd());
       logger.v('Patcher revision: ' + patcherRev);
 
       releaseInfo.revisions = {
@@ -93,6 +93,21 @@ export class ReleaseBuilder {
           'NOWATCH': 'true'
         }
       });
+
+      logger.info('Running tsc on self');
+      child_process.execSync('tsc', {
+        stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
+        cwd: process.cwd()
+      });
+
+      logger.info('Running pkg on self');
+      child_process.execSync(
+        `pkg prime-practice-mod-patcher.js --out-path "${path.resolve(process.cwd(), './natives')}"`,
+        {
+          stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
+          cwd: './'
+        }
+      );
     }
 
     logger.v('Copying mod.js');
@@ -157,13 +172,13 @@ export class ReleaseBuilder {
 
     logger.v('Copying opening_practice.bnr');
     fs.copyFileSync(
-      path.resolve(__dirname, '../../res/opening_practice.bnr'),
+      path.resolve(process.cwd(), './res/opening_practice.bnr'),
       path.resolve(releaseResDir, './opening_practice.bnr')
     );
 
     logger.v('Copying patcher');
     fs.copyFileSync(
-      path.resolve(__dirname, '../../res/patcher-0.1.1.jar'),
+      path.resolve(process.cwd(), './res/patcher-0.1.1.jar'),
       path.resolve(releaseDir, './patcher-0.1.1.jar')
     );
 
@@ -196,60 +211,38 @@ export class ReleaseBuilder {
 
     logger.v('Copying self in');
     fs.copySync(
-      path.resolve(__dirname, '../../src/'),
+      path.resolve(process.cwd(), './src/'),
       path.resolve(releaseDir, './src')
     );
     fs.copyFileSync(
-      path.resolve(__dirname, '../../index.js'),
-      path.resolve(releaseDir, './index.js')
-    );
-    fs.copyFileSync(
-      path.resolve(__dirname, '../../package.json'),
+      path.resolve(process.cwd(), './package.json'),
       path.resolve(releaseDir, './package.json')
     );
-    fs.copyFileSync(
-      path.resolve(__dirname, '../../package-lock.json'),
-      path.resolve(releaseDir, './package-lock.json')
+    fs.copySync(
+      path.resolve(process.cwd(), './natives'),
+      releaseDir
     );
     fs.copyFileSync(
-      path.resolve(__dirname, '../../tsconfig.json'),
-      path.resolve(releaseDir, './tsconfig.json')
-    );
-    fs.copyFileSync(
-      path.resolve(__dirname, '../../patch.sh'),
+      path.resolve(process.cwd(), './patch.sh'),
       path.resolve(releaseDir, './patch.sh')
     );
     fs.copyFileSync(
-      path.resolve(__dirname, '../../patch.bat'),
+      path.resolve(process.cwd(), './patch.bat'),
       path.resolve(releaseDir, './patch.bat')
     );
     fs.copyFileSync(
-      path.resolve(__dirname, '../../README.md'),
+      path.resolve(process.cwd(), './README.md'),
       path.resolve(releaseDir, './README.md')
-    );
-
-    logger.v('Running npm install');
-    child_process.execSync('npm install', {
-      stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
-      cwd: releaseDir
-    });
-
-    logger.v('Extracting windows version of node (ha, silly windows users)');
-    child_process.execSync([
-        'unzip',
-        path.resolve(__dirname, '../../res/node-v9.4.0-win-x64.zip'),
-        '-d',
-        releaseDir
-      ].join(' ')
     );
 
     logger.v('Extracting windows version of java (ha, silly windows users)');
     child_process.execSync([
-        'tar -xf',
-        path.resolve(__dirname, '../../res/jre-8u152-windows-x64.tar.gz'),
+        'tar',
+        '-xf',
+        path.resolve(process.cwd(), './res/jre-8u152-windows-x64.tar.gz'),
         '-C',
         releaseDir
-      ].join(' ')
+      ].map(v => `"${v}"`).join(' ')
     );
 
     logger.v('Creating release zip');
@@ -258,7 +251,7 @@ export class ReleaseBuilder {
         '-r',
         path.resolve(buildDir, `prime-practice-${this.argv.ver}.zip`),
         path.relative(buildDir, releaseDir)
-      ].join(' '),
+      ].map(v => `"${v}"`).join(' '),
       {
         cwd: buildDir
       }

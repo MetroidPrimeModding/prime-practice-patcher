@@ -7,3 +7,5 @@ dist/
 res/*.zip
 res/*.jar
 res/*.tar.gz
+/natives
+/build
