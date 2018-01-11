@@ -210,10 +210,6 @@ export class ReleaseBuilder {
     );
 
     logger.v('Copying self in');
-    fs.copySync(
-      path.resolve(process.cwd(), './src/'),
-      path.resolve(releaseDir, './src')
-    );
     fs.copyFileSync(
       path.resolve(process.cwd(), './package.json'),
       path.resolve(releaseDir, './package.json')
