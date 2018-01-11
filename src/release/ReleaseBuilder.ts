@@ -223,6 +223,10 @@ export class ReleaseBuilder {
       path.resolve(__dirname, '../../patch.bat'),
       path.resolve(releaseDir, './patch.bat')
     );
+    fs.copyFileSync(
+      path.resolve(__dirname, '../../README.md'),
+      path.resolve(releaseDir, './README.md')
+    );
 
     logger.v('Running npm install');
     child_process.execSync('npm install', {
