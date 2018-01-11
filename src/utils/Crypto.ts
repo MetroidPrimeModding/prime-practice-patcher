@@ -110,17 +110,3 @@ export function padToLength(file: string, len: number) {
   fs.writeSync(fd, buff, 0, padLen, startSize);
   fs.closeSync(fd);
 }
-
-export function awaitStream(stream: fs.ReadStream | fs.WriteStream | ReadableStream | WritableStream): Promise<void> {
-  return new Promise((resolve, reject) => {
-    stream.on('finish', () => {
-      resolve();
-    });
-    stream.on('close', () => {
-      resolve();
-    });
-    stream.on('error', (error) => {
-      reject(error);
-    })
-  });
-}

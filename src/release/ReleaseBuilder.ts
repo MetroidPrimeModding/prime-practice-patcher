@@ -4,9 +4,8 @@ import * as path from "path";
 import * as fs from 'fs-extra';
 import {logger} from "../Logger";
 import {ReleaseInfo} from "../utils/ReleaseInfo";
-import {awaitStream, decryptFile, encryptFile, hashFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
+import {awaitStream, encryptFile, hashFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
 import * as unzip from 'unzip';
-import archiver = require("archiver");
 
 export class ReleaseBuilder {
   constructor(private argv: Arguments) {
@@ -41,7 +40,7 @@ export class ReleaseBuilder {
     const buildDir = path.resolve(process.cwd(), `./release/${this.argv.ver}`);
     const tmpDir = path.resolve(buildDir, './tmp');
     const releaseDir = path.resolve(buildDir, `./prime-practice-${this.argv.ver}`);
-    const releaseResDir = path.resolve(releaseDir, './res');
+    const releaseResDir = path.resolve(releaseDir, './release');
     logger.info('Output directory: ' + buildDir);
     logger.v('Temp directory: ' + tmpDir);
     logger.v('Release directory: ' + releaseDir);
