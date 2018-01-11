@@ -1,6 +1,9 @@
 import {Arguments, Argv} from "yargs";
 import chalk from "chalk";
 import {CommandBase} from "./CommandBase";
+import {logger} from "../Logger";
+import {ReleaseBuilder} from "../release/ReleaseBuilder";
+import {Patcher} from "../patcher/Patcher";
 
 export class PatchCommand implements CommandBase {
   command = 'patch <iso> [outputFile]';
@@ -20,6 +23,12 @@ export class PatchCommand implements CommandBase {
   }
 
   handler(argv: Arguments) {
-    console.log(chalk.cyan(`Patching ${argv.iso}`))
+    const patcher = new Patcher(argv);
+    patcher.execute().then(() => {
+      logger.info('Patched!');
+    }).catch((error) => {
+      logger.error('Error patching: ' + error);
+      throw error;
+    });
   }
 }

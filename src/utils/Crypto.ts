@@ -26,7 +26,7 @@ export function encryptFile(file: string, pw: string): Promise<void> {
 
 export function decryptFile(file: string, pw: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const outFile = file + '.decrypt';
+    const outFile = file.replace('.aes256', '');
     const cipher = crypto.createDecipher('aes256', pw);
     const input = fs.createReadStream(file);
     const output = fs.createWriteStream(outFile);
@@ -39,8 +39,8 @@ export function decryptFile(file: string, pw: string): Promise<void> {
   });
 }
 
-export function xorFiles(filea: string, fileb: string) {
-  const outfile = filea + '.xor.' + path.basename(fileb);
+export function xorFiles(filea: string, fileb: string, dest?: string) {
+  const outfile = dest || (filea + '.xor.' + path.basename(fileb));
   const lena = fs.statSync(filea).size;
   const lenb = fs.statSync(fileb).size;
   if (lena != lenb) {

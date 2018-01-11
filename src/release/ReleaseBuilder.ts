@@ -4,8 +4,7 @@ import * as path from "path";
 import * as fs from 'fs-extra';
 import {logger} from "../Logger";
 import {ReleaseInfo} from "../utils/ReleaseInfo";
-import {awaitStream, encryptFile, hashFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
-import * as unzip from 'unzip';
+import {encryptFile, hashFile, padToLength, randomHex, xorFiles} from "../utils/Crypto";
 
 export class ReleaseBuilder {
   constructor(private argv: Arguments) {
@@ -165,7 +164,7 @@ export class ReleaseBuilder {
     logger.v('Copying patcher');
     fs.copyFileSync(
       path.resolve(__dirname, '../../res/patcher-0.1.1.jar'),
-      path.resolve(releaseResDir, './patcher-0.1.1.jar')
+      path.resolve(releaseDir, './patcher-0.1.1.jar')
     );
 
     {
@@ -179,6 +178,13 @@ export class ReleaseBuilder {
         defaultDol: defaultDolHash,
         defaultModDol: defaultModDolHash,
         GM8E01: GM8E01isoHash
+      }
+    }
+
+    {
+      logger.v('Getting size of default_mod.dol');
+      releaseInfo.sizes = {
+        defaultModDol: fs.statSync(path.resolve(tmpDir, './default_mod.dol')).size
       }
     }
 

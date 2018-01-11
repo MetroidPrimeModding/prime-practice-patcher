@@ -17,4 +17,8 @@ export interface ReleaseInfo {
     defaultModDol: string;
     GM8E01: string;
   }
+
+  sizes: {
+    defaultModDol: number;
+  }
 }
