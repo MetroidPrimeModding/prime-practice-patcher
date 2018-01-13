@@ -56,6 +56,21 @@ This project can produce a release & patch a metroid prime iso to be the practic
 - Config
   - Adjust which HUD elements appear
 
+## HUD
+- Input
+  - Current IGT
+  - Digital Inputs
+  - Analog Main Stick
+- Player Speed
+  - Current speed (x, y, z, horizontal total)
+  - Currrent rotational speed (x, y, z, total)
+- Room timers
+  - Current room IGT, in seconds
+  - Current room IGT, in frames
+  - Previous room IGT, in seconds
+  - Previous room IGT, in frames
+- FPS
+  - Game-measured FPS
 
 ## Changelog
 
