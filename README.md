@@ -74,6 +74,13 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 1.1.2
+- Minor performance improvements
+- Internal rework of how native is built
+
+### 1.1.1
+- Minor fixes
+
 ### 1.1.0
 - Add Player menu
 - Add FPS counter
