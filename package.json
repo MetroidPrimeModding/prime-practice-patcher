@@ -1,19 +1,19 @@
 {
   "name": "prime-practice-patcher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {},
   "dependencies": {
     "@types/chalk": "^2.2.0",
-    "@types/fs-extra": "^5.0.0",
-    "@types/node": "^8.5.7",
-    "@types/yargs": "^10.0.1",
-    "chalk": "^2.3.0",
+    "@types/fs-extra": "^5.0.4",
+    "@types/node": "^8.10.39",
+    "@types/yargs": "^10.0.2",
+    "chalk": "^2.4.2",
     "fs-extra": "^5.0.0",
     "jimp": "^0.2.28",
     "ts-node": "^4.1.0",
-    "typescript": "^2.6.2",
-    "yargs": "^10.0.3"
+    "typescript": "^2.9.2",
+    "yargs": "^10.1.2"
   },
   "main": "index.js"
 }

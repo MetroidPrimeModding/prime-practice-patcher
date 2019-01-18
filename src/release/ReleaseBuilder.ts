@@ -102,7 +102,7 @@ export class ReleaseBuilder {
 
       logger.info('Running pkg on self');
       child_process.execSync(
-        `pkg prime-practice-mod-patcher.js --out-path "${path.resolve(process.cwd(), './natives')}"`,
+        `pkg prime-practice-mod-patcher.js --out-path "${path.resolve(process.cwd(), './natives')}" --targets node10-win-x64,node10-macos-x64,node10-linux-x64`,
         {
           stdio: this.argv.verbose >= 1 ? 'inherit' : ['ignore', 'ignore', 'inherit'],
           cwd: './'
@@ -178,8 +178,8 @@ export class ReleaseBuilder {
 
     logger.v('Copying patcher');
     fs.copyFileSync(
-      path.resolve(process.cwd(), './res/patcher-0.1.1.jar'),
-      path.resolve(releaseDir, './patcher-0.1.1.jar')
+      path.resolve(process.cwd(), './res/patcher-0.1.2.jar'),
+      path.resolve(releaseDir, './patcher-0.1.2.jar')
     );
 
     {

@@ -42,7 +42,7 @@ export class Patcher {
     child_process.execSync([
         java,
         '-jar',
-        path.resolve(process.cwd(), './patcher-0.1.1.jar'),
+        path.resolve(process.cwd(), './patcher-0.1.2.jar'),
         'extract',
         '-fq',
         '-o',
@@ -121,7 +121,7 @@ export class Patcher {
     child_process.execSync([
         java,
         '-jar',
-        path.resolve(process.cwd(), './patcher-0.1.1.jar'),
+        path.resolve(process.cwd(), './patcher-0.1.2.jar'),
         'repack',
         '-fq',
         '-o',

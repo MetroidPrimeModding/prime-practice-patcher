@@ -74,6 +74,15 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 1.2.1
+- IS enabler (requires morph)
+- Lightshow Fix (requires unmorphed)
+- Update patcher
+- May have fixed soft-reset crash
+
+### 1.2.0
+- Add trigger rendering
+
 ### 1.1.2
 - Minor performance improvements
 - Internal rework of how native is built
