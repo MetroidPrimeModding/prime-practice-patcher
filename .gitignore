@@ -1,6 +1,5 @@
 dist/
 /.idea/
-/node_modules/
 /release
 *.iso
 .DS_Store
@@ -9,3 +8,4 @@ res/*.jar
 res/*.tar.gz
 /natives
 /build
+/cmake-build-*/
