@@ -9,3 +9,5 @@ res/*.tar.gz
 /natives
 /build
 /cmake-build-*/
+*.dol
+res/prime_practice_patcher_*
