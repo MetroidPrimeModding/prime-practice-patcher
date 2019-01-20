@@ -16,21 +16,21 @@ int build_release(std::vector<std::string> args) {
 
   path cwd = current_path();
 
-  path scriptPath = (cwd / ".." / "prime-practice-script").normalize();
+  path scriptPath = absolute(cwd / ".." / "prime-practice-script");
   printf("Script directory: %s\n", scriptPath.string().c_str());
   if (!is_directory(scriptPath)) FATAL("Script directory does not exist!\n");
 
-  path nativePath = (cwd / ".." / "prime-practice-native").normalize();
+  path nativePath = absolute(cwd / ".." / "prime-practice-native");
   printf("Native directory: %s\n", nativePath.string().c_str());
   if (!is_directory(nativePath)) FATAL("Native directory does not exist!\n");
 
-  path isoPath = (cwd / "GM8E01.iso").normalize();
+  path isoPath = absolute(cwd / "GM8E01.iso");
   printf("ISO Path: %s\n", isoPath.string().c_str());
   if (!is_regular_file(isoPath)) FATAL("ISO doesn't exist!\n");
 
-  path buildDir = (cwd / "release" / version).normalize();
-  path releaseDir = (buildDir / ("prime-practice-" + version)).normalize();
-  path releaseResDir = (releaseDir / "release").normalize();
+  path buildDir = absolute(cwd / "release" / version);
+  path releaseDir = absolute(buildDir / ("prime-practice-" + version));
+  path releaseResDir = absolute(releaseDir / "release");
   printf("Output directory: %s\n", buildDir.string().c_str());
   printf("Release directory: %s\n", releaseDir.string().c_str());
   printf("Release res directory: %s\n", releaseResDir.string().c_str());
@@ -43,13 +43,13 @@ int build_release(std::vector<std::string> args) {
   // yeah yeah yeah I know system is ultra insecure, this is ONLY used on packaging
   // TODO: don't use system and be secure
   printf("Running script build\n");
-  path scriptBuildPath = (scriptPath / "compile_prod.sh").normalize();
+  path scriptBuildPath = absolute(scriptPath / "compile_prod.sh");
   current_path(scriptPath);
   system(scriptBuildPath.string().c_str());
   current_path(cwd);
 
   printf("Running native build\n");
-  path nativeBuildPath = (nativePath / "compile.sh").normalize();
+  path nativeBuildPath = absolute(nativePath / "compile.sh");
   current_path(nativePath);
   system(nativeBuildPath.string().c_str());
   current_path(cwd);
@@ -106,8 +106,8 @@ int build_release(std::vector<std::string> args) {
 
   printf("Creating release zip\n");
   current_path(buildDir);
-  path outZip = (buildDir / ("prime-practice-" + version + ".zip")).normalize();
-  path releaseDirRelative = relative(releaseDir, buildDir).normalize();
+  path outZip = absolute(buildDir / absolute("prime-practice-" + version + ".zip"));
+  path releaseDirRelative = relative(releaseDir, buildDir);
   string command = "zip -r \"" + outZip.string() + "\" \"" + releaseDirRelative.string() + "\"";
   system(command.c_str());
 

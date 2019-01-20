@@ -1,5 +1,9 @@
 #include "DolFile.hpp"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 using namespace std;
 using namespace fs;
 
@@ -172,9 +176,9 @@ int patch_dol(std::vector<std::string> args) {
   }
 
   path cwd = current_path();
-  path inDol = (cwd / args[0]).normalize();
-  path outDol = (cwd / args[1]).normalize();
-  path patchFile = (cwd / "res" / "DolPatch.bin").normalize();
+  path inDol = absolute(cwd / args[0]);
+  path outDol = absolute(cwd / args[1]);
+  path patchFile = (cwd / "res" / "DolPatch.bin");
 
   DolFile dolFile;
   dolFile.readFrom(inDol);
