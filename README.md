@@ -74,6 +74,9 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 1.2.2
+- Rewrote patcher to native (much smaller, faster)
+
 ### 1.2.1
 - IS enabler (requires morph)
 - Lightshow Fix (requires unmorphed)
