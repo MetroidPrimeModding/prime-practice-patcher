@@ -94,7 +94,7 @@ int patch_iso(std::vector<std::string> args) {
     copy_file(
       cwd / "release" / "opening_practice.bnr",
       tmp / "files" / "opening.bnr",
-#ifdef __APPLE
+#ifdef __APPLE__
       copy_option::overwrite_if_exists
 #else
       copy_options::overwrite_existing
