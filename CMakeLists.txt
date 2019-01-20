@@ -37,6 +37,9 @@ elseif (UNIX)
       ${LIBS}
       stdc++fs)
   endif ()
+  set(LIBS
+    ${LIBS}
+    dl)
 endif ()
 
 # Include
