@@ -13,15 +13,15 @@ int patch_iso(std::vector<std::string> args) {
   if (args.size() < 1) FATAL("Must provide at least one positional argument (the iso to patch)\n");
 
   path cwd = current_path();
-  path toPatch = (cwd / args[0]).normalize();
-  path outFile = (cwd / "prime-practice-mod.iso").normalize();
-  path tmp = (cwd / "tmp").normalize();
+  path toPatch = absolute(cwd / args[0]);
+  path outFile = absolute(cwd / "prime-practice-mod.iso");
+  path tmp = absolute(cwd / "tmp");
   remove_all(tmp);
   create_directories(tmp);
 
   {
-    nod::SystemStringView lastFile;
-    nod::ExtractionContext ctx{true, [&lastFile](nod::SystemStringView name, float progress) {
+    string_view lastFile;
+    nod::ExtractionContext ctx{true, [&lastFile](string_view name, float progress) {
       if (lastFile != name) {
         lastFile = name;
         printf("Extracting... %.2f%% (%s)\n", progress * 100.f, name.data());
@@ -30,19 +30,27 @@ int patch_iso(std::vector<std::string> args) {
 
     printf("Extracting %s\n", toPatch.string().c_str());
     bool isWii;
+#ifdef _WIN32
+    unique_ptr<nod::DiscBase> disc = nod::OpenDiscFromImage(toPatch.wstring(), isWii);
+#else
     unique_ptr<nod::DiscBase> disc = nod::OpenDiscFromImage(toPatch.string(), isWii);
+#endif
     if (!disc) FATAL("Failed to open disc\n");
     if (isWii) FATAL("Must be a copy of NTSC 0-00, not a Wii game\n");
 
+#ifdef _WIN32
+    disc->extractToDirectory(tmp.wstring(), ctx);
+#else
     disc->extractToDirectory(tmp.string(), ctx);
+#endif
   }
 
   {
-    path defaultDol = (tmp / "files" / "default.dol").normalize();
-    path mainDol = (tmp / "sys" / "main.dol").normalize();
-    path defaultBak = (tmp / "default.dol").normalize();
-    path mainBak = (tmp / "main.dol").normalize();
-    path patchFile = (cwd / "release" / "DolPatch.bin");
+    path defaultDol = absolute(tmp / "files" / "default.dol");
+    path mainDol = absolute(tmp / "sys" / "main.dol");
+    path defaultBak = absolute(tmp / "default.dol");
+    path mainBak = absolute(tmp / "main.dol");
+    path patchFile = absolute(cwd / "release" / "DolPatch.bin");
 
     printf("Backing up dol files\n");
     copy_file(defaultDol, defaultBak);
@@ -60,7 +68,7 @@ int patch_iso(std::vector<std::string> args) {
   }
 
   {
-    path boot = (tmp / "sys" / "boot.bin").normalize();
+    path boot = absolute(tmp / "sys" / "boot.bin");
     printf("Patching boot.bin\n");
     FILE *fp = fopen(boot.string().c_str(), "a+b");
     if (fp) {
@@ -86,7 +94,11 @@ int patch_iso(std::vector<std::string> args) {
     copy_file(
       cwd / "release" / "opening_practice.bnr",
       tmp / "files" / "opening.bnr",
+#ifdef __APPLE
       copy_option::overwrite_if_exists
+#else
+      copy_options::overwrite_existing
+#endif
     );
   }
 
@@ -100,8 +112,13 @@ int patch_iso(std::vector<std::string> args) {
       }
     };
 
+#ifdef _WIN32
+    nod::DiscBuilderGCN builder(outFile.wstring(), progFunc);
+    auto ret = builder.buildFromDirectory(tmp.wstring());
+#else
     nod::DiscBuilderGCN builder(outFile.string(), progFunc);
     auto ret = builder.buildFromDirectory(tmp.string());
+#endif
 
     switch (ret) {
       case nod::EBuildResult::Success:

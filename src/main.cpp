@@ -10,7 +10,11 @@ logvisor::Module Log("prime-practice-patcher");
 
 using namespace std;
 
+#ifdef UNICODE
+int wmain(int argc, wchar_t **argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
 
@@ -18,7 +22,9 @@ int main(int argc, char *argv[]) {
 
   vector<string> args;
   for (int i = 1; i < argc; i++) {
-    args.push_back(argv[i]);
+    string_view strView = nod::SystemUTF8Conv(wstring(argv[i])).utf8_str();
+    string str(strView.data()); 
+    args.push_back(str);
   }
   if (args.size() < 1) {
     fprintf(stderr, "Must provide a command:\n");
