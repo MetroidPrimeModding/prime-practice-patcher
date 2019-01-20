@@ -62,9 +62,9 @@ int patch_iso(std::vector<std::string> args) {
     dol.readFrom(mainBak);
     dol.applyPatch(mainBak, patchFile, mainDol);
 
-    printf("Deleting backups\n");
-    remove_all(mainBak);
-    remove_all(defaultBak);
+    //printf("Deleting backups\n");
+    //remove_all(mainBak);
+    //remove_all(defaultBak);
   }
 
   {
