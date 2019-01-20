@@ -11,3 +11,4 @@ res/*.tar.gz
 /cmake-build-*/
 *.dol
 res/prime_practice_patcher_*
+/tmp

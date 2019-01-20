@@ -26,12 +26,14 @@ include_directories(extern/json/include)
 # Our srcs
 set(HEADERS
   src/release/ReleaseBuilder.hpp
+  src/patcher/Patcher.hpp
   src/dol/DolFile.hpp
   src/fs.hpp)
 
 set(SRCS
   src/main.cpp
   src/release/ReleaseBuilder.cpp
+  src/patcher/Patcher.cpp
   src/dol/DolFile.cpp)
 
 set(LIBS

@@ -43,6 +43,8 @@ void DolFile::readFrom(path dolFile) {
 #define U32_AT_ADDRESS(buff, offset) ((uint32_t*)(&buff.data()[offset]))
 
 void DolFile::applyPatch(path dolFile, path patchFile, path outFile) {
+  printf("Patching %s, outputting to %s\n", dolFile.string().c_str(), outFile.string().c_str());
+
   vector<uint8_t> patchData;
   {
     size_t patchFileSize = file_size(patchFile);
@@ -53,7 +55,7 @@ void DolFile::applyPatch(path dolFile, path patchFile, path outFile) {
     fclose(fpPatch);
   }
 
-  printf("Adding patch to %08X\n", p1_0_00_patch_address);
+  //printf("Adding patch to %08X\n", p1_0_00_patch_address);
 
   // Relocate addresses in the patch code to account for the address it's placed at in memory
   patch_hi_lo(patchData, 0x04, 0x08, p1_0_00_patch_address + 0xFF);
@@ -135,6 +137,7 @@ void DolFile::applyPatch(path dolFile, path patchFile, path outFile) {
     fread(secData.data(), secData.size(), 1, srcFP);
     fwrite(secData.data(), secData.size(), 1, outFP);
   }
+  fclose(outFP);
 }
 
 

@@ -4,6 +4,7 @@
 #include "nod/nod.hpp"
 #include "release/ReleaseBuilder.hpp"
 #include "dol/DolFile.hpp"
+#include "patcher/Patcher.hpp"
 
 logvisor::Module Log("prime-practice-patcher");
 
@@ -33,6 +34,8 @@ int main(int argc, char *argv[]) {
     return build_release(args);
   } else if (command == "patch_dol") {
     return patch_dol(args);
+  } else if (command == "patch") {
+    return patch_iso(args);
   } else {
     fprintf(stderr, "Unknown command '%s'\n", command.c_str());
     return 1;

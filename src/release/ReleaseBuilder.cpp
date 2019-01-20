@@ -9,10 +9,7 @@ using namespace fs;
 using namespace std;
 
 int build_release(std::vector<std::string> args) {
-  if (args.size() < 1) {
-    fprintf(stderr, "Must provide at least one positional argument (the length)\n");
-    return 1;
-  }
+  if (args.size() < 1) FATAL("Must provide at least one positional argument (the length)\n");
   string version = args[0];
 
   printf("Producing a new release: version %s\n", version.c_str());
