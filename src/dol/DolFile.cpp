@@ -2,6 +2,10 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#elif __APPLE__
+// htonl just works
+#else
+#include <arpa/inet.h>
 #endif
 
 using namespace std;

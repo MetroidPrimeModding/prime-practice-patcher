@@ -11,9 +11,9 @@ if (WIN32)
     ${LIBS}
     wsock32
     ws2_32)
-else()
+else ()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-endif()
+endif ()
 
 # Deps
 add_subdirectory(extern/nod)
@@ -26,6 +26,17 @@ if (APPLE)
     ${LIBS}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY})
+elseif (UNIX)
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # using Clang
+    set(LIBS
+      ${LIBS}
+      c++fs)
+  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(LIBS
+      ${LIBS}
+      stdc++fs)
+  endif ()
 endif ()
 
 # Include
