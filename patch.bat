@@ -1,2 +1,2 @@
-.\prime-practice-mod-patcher-win.exe patch prime.iso
+.\prime_practice_patcher_windows.exe patch prime.iso
 pause

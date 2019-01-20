@@ -2,7 +2,9 @@
 platform='unknown'
 unamestr=`uname`
 if [[ "$unamestr" == 'Darwin' ]]; then
-   ./prime-practice-mod-patcher-macos patch prime.iso
+   chmod +x prime_practice_patcher_macos
+   ./prime_practice_patcher_macos patch prime.iso
 else
-   ./prime-practice-mod-patcher-linux patch prime.iso
+   chmod +x prime_practice_patcher_linux
+   ./prime_practice_patcher_linux patch prime.iso
 fi
