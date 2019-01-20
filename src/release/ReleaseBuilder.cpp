@@ -106,10 +106,12 @@ int build_release(std::vector<std::string> args) {
 
   printf("Creating release zip\n");
   current_path(buildDir);
-  path outZip = absolute(buildDir / absolute("prime-practice-" + version + ".zip"));
+  path outZip = absolute(buildDir / ("prime-practice-" + version + ".zip"));
   path releaseDirRelative = relative(releaseDir, buildDir);
   string command = "zip -r \"" + outZip.string() + "\" \"" + releaseDirRelative.string() + "\"";
+  printf("Executing: %s\n", command.c_str());
   system(command.c_str());
+  current_path(cwd);
 
   return 0;
 }
