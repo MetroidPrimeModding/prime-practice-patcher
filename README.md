@@ -74,6 +74,10 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 1.2.3
+- Add position/precise position displays
+- Change file select to show mm:ss instead of hh:mm
+
 ### 1.2.2
 - Rewrote patcher to native (much smaller, faster)
 
