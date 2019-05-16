@@ -74,6 +74,9 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 1.2.5
+- Fix warps, so they warp you to the destination, instead of the credits
+
 ### 1.2.4
 - Remove ZOOM from next to the IGT on save select
 - Allow IGT and input to be configured separately
