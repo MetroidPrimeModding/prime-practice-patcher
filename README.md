@@ -2,12 +2,13 @@
 This project can produce a release & patch a metroid prime iso to be the practice mod
 
 ## How to install (Windows)
-
+Youtube video: [https://www.youtube.com/watch?v=SpSQNYHwMjY](https://www.youtube.com/watch?v=SpSQNYHwMjY)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
 - Copy a metroid prime iso to 'prime.iso in this directory'
 - Run `patch.bat`
 
 ## How to install (Non-windows)
+Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6855ffjg](https://www.youtube.com/watch?v=fyz6855ffjg)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
 - Copy a metroid prime iso to 'prime.iso in this directory'
 - Run `patch.sh`
