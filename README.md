@@ -10,8 +10,6 @@ This project can produce a release & patch a metroid prime iso to be the practic
 ## How to install (Non-windows)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
 - Copy a metroid prime iso to 'prime.iso in this directory'
-- Install with package manager (brew, apt, pacman, yum, etc): 
-    - java 8
 - Run `patch.sh`
 
 ## Usage
