@@ -65,6 +65,10 @@ def patch_iso(inp_path, out_path, mod_path):
     with open(mod_path, 'rb') as f:
         mod_rel_bytes = f.read()
 
+    print("Loading bnr")
+    with open("opening_practice.bnr", 'rb') as f:
+        bnr_bytes = f.read()
+
     # Figure out our new offsets
     print("Determining file offsets for new files")
     dol_offset = first_file - len(patched_dol_bytes)
@@ -88,7 +92,6 @@ def patch_iso(inp_path, out_path, mod_path):
 
     # Add them to the root entry
     print("Patching FST")
-    print("FST addr", header.fst_offset)
     fst.root.children.append(patched_dol_fst_entry)
     fst.root.children.append(mod_rel_fst_entry)
     # It's time: copy the old
@@ -121,6 +124,11 @@ def patch_iso(inp_path, out_path, mod_path):
     print("Writing mod & dol")
     out_writer.write_bytes(patched_dol_fst_entry.offset, patched_dol_bytes)
     out_writer.write_bytes(mod_rel_fst_entry.offset, mod_rel_bytes)
+
+    print("patching bnr")
+    out_writer.write_string(0x20, "Metroid Prime Practice Mod")
+    bnr_fst = fst.find(["opening.bnr"])
+    out_writer.write_bytes(bnr_fst.offset, bnr_bytes)
 
     # Cleanup
     print("Closing files")
