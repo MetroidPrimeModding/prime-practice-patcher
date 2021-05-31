@@ -84,7 +84,7 @@ class FSTEntry:
     length: int = None
 
     def print(self, depth=0):
-        print("\t" * depth + self.name)
+        print("\t" * depth + f"{self.name} {self.offset} {self.length}")
         if self.children:
             for child in self.children:
                 child.print(depth + 1)

@@ -89,14 +89,8 @@ def patch_iso(inp_path, out_path, mod_path):
     # Add them to the root entry
     print("Patching FST")
     print("FST addr", header.fst_offset)
-    for r in fst.get_ranges()[:4]:
-        print(r)
-    fst.root.children.insert(0, patched_dol_fst_entry)
-    fst.root.children.insert(0, mod_rel_fst_entry)
-    print("----")
-    for r in fst.get_ranges()[:4]:
-        print(r)
-
+    fst.root.children.append(patched_dol_fst_entry)
+    fst.root.children.append(mod_rel_fst_entry)
     # It's time: copy the old
     print("Copying iso (note: this may take some time)")
     out_file = open(out_path, "wb+")
@@ -120,6 +114,7 @@ def patch_iso(inp_path, out_path, mod_path):
 
     print("Updating header")
     header.fst_size = fst_len
+    header.fst_max_size = fst_len
     header.dol_offset = patched_dol_fst_entry.offset
     header.write(out_writer)
 
